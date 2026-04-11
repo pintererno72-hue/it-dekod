@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IT DeKód">
+<meta name="theme-color" content="#0e0e12">
+<title>IT DeKód – a kockanyelv értelmező</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%236c5ce7'/%3E%3Cpath d='M8 13C8 10.8 9.8 9 12 9H52C54.2 9 56 10.8 56 13V39C56 41.2 54.2 43 52 43H37L27 56V43H12C9.8 43 8 41.2 8 39V13Z' fill='%230d0b1e'/%3E%3Cpath d='M8 13C8 10.8 9.8 9 12 9H52C54.2 9 56 10.8 56 13V39C56 41.2 54.2 43 52 43H37L27 56V43H12C9.8 43 8 41.2 8 39V13Z' stroke='rgba(162,155,254,0.6)' stroke-width='1.5' stroke-linejoin='round'/%3E%3Ctext x='14' y='24' font-family='monospace' font-size='7.5' fill='%23a29bfe'%3E01101011%3C/text%3E%3Ctext x='14' y='33' font-family='monospace' font-size='7.5' fill='%23a29bfe' opacity='0.7'%3E01001111%3C/text%3E%3Ctext x='14' y='42' font-family='monospace' font-size='7.5' fill='%23a29bfe' opacity='0.4'%3E01000011%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%236c5ce7'/%3E%3Cpath d='M8 13C8 10.8 9.8 9 12 9H52C54.2 9 56 10.8 56 13V39C56 41.2 54.2 43 52 43H37L27 56V43H12C9.8 43 8 41.2 8 39V13Z' fill='%230d0b1e'/%3E%3Cpath d='M8 13C8 10.8 9.8 9 12 9H52C54.2 9 56 10.8 56 13V39C56 41.2 54.2 43 52 43H37L27 56V43H12C9.8 43 8 41.2 8 39V13Z' stroke='rgba(162,155,254,0.6)' stroke-width='1.5' stroke-linejoin='round'/%3E%3Ctext x='14' y='24' font-family='monospace' font-size='7.5' fill='%23a29bfe'%3E01101011%3C/text%3E%3Ctext x='14' y='33' font-family='monospace' font-size='7.5' fill='%23a29bfe' opacity='0.7'%3E01001111%3C/text%3E%3Ctext x='14' y='42' font-family='monospace' font-size='7.5' fill='%23a29bfe' opacity='0.4'%3E01000011%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0e12;--surface:#16161d;--surface2:#1e1e28;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --accent:#6c5ce7;--accent2:#a29bfe;
+  --text:#f0eff8;--muted:#8b8a9e;--muted2:#5e5d72;
+  --green:#00b894;--amber:#fdcb6e;
+  --radius:16px;--radius-sm:10px;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;justify-content:center;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+.app{width:100%;max-width:480px;min-height:100vh;display:flex;flex-direction:column}
+
+/* HEADER */
+.header{padding:max(env(safe-area-inset-top),48px) 24px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo-wrap{display:flex;align-items:center;gap:12px}
+.logo-name{font-family:'DM Mono',monospace;font-size:20px;font-weight:600;color:var(--text);letter-spacing:-0.5px;line-height:1}
+.logo-name .kod{color:var(--accent2)}
+.logo-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);margin-top:2px}
+.cur{display:none;width:6px;height:11px;background:var(--accent2);vertical-align:middle;margin-left:1px;animation:blink .55s steps(1) infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.header-btns{display:flex;gap:8px}
+.icon-btn{width:40px;height:40px;border:1px solid var(--border2);border-radius:11px;background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);flex-shrink:0;transition:all .15s}
+.icon-btn:active{background:var(--surface2);color:var(--text);transform:scale(.94)}
+
+/* SEARCH */
+.search-area{padding:8px 24px 20px}
+.search-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;gap:10px;padding:12px 14px;transition:border-color .2s}
+.search-box:focus-within{border-color:var(--accent)}
+.search-box input{flex:1;min-width:0;background:none;border:none;outline:none;color:var(--text);font-family:'DM Mono',monospace;font-size:15px}
+.search-box input::placeholder{color:var(--muted2);font-family:'DM Sans',sans-serif}
+.mic-btn{width:38px;height:38px;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);flex-shrink:0;transition:all .15s}
+.mic-btn.listening{background:var(--accent);border-color:var(--accent);color:white;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(108,92,231,.5)}50%{box-shadow:0 0 0 10px rgba(108,92,231,0)}}
+.search-btn{padding:0 16px;height:38px;background:var(--accent);border:none;border-radius:9px;color:white;font-family:'DM Mono',monospace;font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0;transition:opacity .15s,transform .1s}
+.search-btn:active{opacity:.8;transform:scale(.96)}
+
+/* STATUS */
+.status-bar{margin:0 24px 16px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.dot.orange{background:var(--amber)}.dot.gray{background:var(--muted2)}.dot.red{background:#e17055}
+
+/* LOADING */
+.loading{display:none;margin:0 24px 18px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px 20px;gap:6px;align-items:center}
+.loading.visible{display:flex}
+.da{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:bounce 1.2s infinite}
+.da:nth-child(2){animation-delay:.2s}.da:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:scale(.75);opacity:.4}40%{transform:scale(1.2);opacity:1}}
+.loading-text{font-size:13px;color:var(--muted);margin-left:8px;font-family:'DM Mono',monospace}
+
+/* RESULT */
+.result-card{margin:0 24px 20px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;display:none;animation:fadeUp .22s ease}
+.result-card.visible{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.result-source{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;font-family:'DM Mono',monospace}
+.src-offline{color:var(--green)}.src-ai{color:var(--accent2)}.src-cached{color:var(--amber)}
+.result-word{font-family:'DM Mono',monospace;font-size:24px;font-weight:600;color:var(--accent2);margin-bottom:3px}
+.result-cat{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:14px}
+.result-div{height:1px;background:var(--border);margin-bottom:14px}
+.result-def{font-size:15px;line-height:1.7;color:var(--text);margin-bottom:16px}
+.result-ex-label{font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;font-family:'DM Mono',monospace}
+.result-ex{font-size:14px;line-height:1.6;color:var(--muted);border-left:2px solid var(--accent2);padding-left:12px;font-family:'DM Mono',monospace}
+.result-actions{display:flex;gap:8px;margin-top:18px}
+.action-btn{flex:1;height:40px;border:1px solid var(--border2);border-radius:9px;background:var(--surface2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.action-btn:active{transform:scale(.96)}
+.action-btn.speaking{color:var(--accent2);border-color:var(--accent)}
+
+/* PANELS */
+.panel{padding:0 24px}
+.panel-hidden{display:none}
+.section-label{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;font-family:'DM Mono',monospace}
+.chip-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.chip{padding:7px 14px;background:var(--surface);border:1px solid var(--border);border-radius:100px;font-size:13px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:'DM Mono',monospace}
+.chip:active{background:var(--surface2);color:var(--text);transform:scale(.96)}
+.history-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.history-item:active{opacity:.6}
+.history-word{font-size:15px;font-weight:600;flex:1;font-family:'DM Mono',monospace;color:var(--accent2)}
+.badge{font-size:10px;padding:3px 9px;border-radius:100px;font-weight:600;font-family:'DM Mono',monospace}
+.badge-offline{background:rgba(0,184,148,.12);color:var(--green)}
+.badge-ai{background:rgba(108,92,231,.15);color:var(--accent2)}
+.badge-cached{background:rgba(253,203,110,.15);color:var(--amber)}
+
+/* SETTINGS */
+.settings-block{background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.2);border-radius:var(--radius-sm);padding:16px;margin-bottom:20px}
+.settings-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent2);margin-bottom:8px;font-family:'DM Mono',monospace}
+.settings-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.settings-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;margin-bottom:10px}
+.settings-input:focus{border-color:var(--accent)}
+.settings-save{width:100%;height:38px;background:var(--accent);border:none;border-radius:8px;color:white;font-family:'DM Mono',monospace;font-size:13px;font-weight:600;cursor:pointer}
+.settings-save:active{opacity:.8}
+.clear-btn{width:100%;height:38px;border:1px solid var(--border2);border-radius:8px;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.clear-btn:active{background:var(--surface2)}
+
+/* FOOTER */
+.footer{margin-top:auto;padding:16px 24px max(env(safe-area-inset-bottom),24px);display:flex;align-items:center;justify-content:center;gap:8px}
+.footer-text{font-size:11px;color:var(--muted2);font-family:'DM Mono',monospace}
+.footer-badge{font-size:10px;padding:3px 9px;border-radius:100px;background:rgba(0,184,148,.1);color:var(--green);font-weight:600;font-family:'DM Mono',monospace}
+.footer-badge.ai{background:rgba(108,92,231,.12);color:var(--accent2)}
+
+/* TOAST */
+.toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border2);border-radius:100px;padding:10px 20px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="logo-wrap">
+      <svg width="44" height="44" viewBox="0 0 64 64" fill="none" style="flex-shrink:0">
+        <rect width="64" height="64" rx="16" fill="#6c5ce7"/>
+        <path d="M8 13C8 10.8 9.8 9 12 9H52C54.2 9 56 10.8 56 13V39C56 41.2 54.2 43 52 43H37L27 56V43H12C9.8 43 8 41.2 8 39V13Z" fill="#0d0b1e"/>
+        <path d="M8 13C8 10.8 9.8 9 12 9H52C54.2 9 56 10.8 56 13V39C56 41.2 54.2 43 52 43H37L27 56V43H12C9.8 43 8 41.2 8 39V13Z" stroke="rgba(162,155,254,0.6)" stroke-width="1.5" stroke-linejoin="round"/>
+        <text x="14" y="24" font-family="monospace" font-size="7.5" fill="#a29bfe">01101011</text>
+        <text x="14" y="33" font-family="monospace" font-size="7.5" fill="#a29bfe" opacity="0.7">01001111</text>
+        <text x="14" y="42" font-family="monospace" font-size="7.5" fill="#a29bfe" opacity="0.4">01000011</text>
+      </svg>
+      <div>
+        <div class="logo-name">IT De<span class="kod">Kód</span><span style="display:inline-block;transform:scaleX(-1);color:var(--accent2);">R</span></div>
+        <div class="logo-tag"><span id="tagline">a kockanyelv értelmező</span><span class="cur" id="cur"></span></div>
+      </div>
+    </div>
+    <div class="header-btns">
+      <button class="icon-btn" onclick="showPanel('settings')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" onclick="showPanel('history')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="search-area">
+    <div class="search-box">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;color:var(--muted2)"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <input type="text" id="searchInput" placeholder="Pl: API, loop, variable..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter'){this.blur();doSearch();}" oninput="onInput(this.value)">
+      <button class="mic-btn" id="micBtn" onclick="startVoice()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4.5" y="1" width="5" height="8" rx="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 7c0 2.76 2.24 5 5 5s5-2.24 5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="7" y1="12" x2="7" y2="14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </button>
+      <button class="search-btn" onclick="doSearch()">Keresés</button>
+    </div>
+  </div>
+
+  <div class="status-bar"><div class="dot" id="sDot"></div><span id="sTxt">szótár betöltve – offline elérhető</span></div>
+
+  <div class="loading" id="loading"><div class="da"></div><div class="da"></div><div class="da"></div><span class="loading-text">// AI keresi a választ...</span></div>
+
+  <div class="result-card" id="resultCard">
+    <div class="result-source" id="rSrc"></div>
+    <div class="result-word" id="rWord"></div>
+    <div class="result-cat" id="rCat"></div>
+    <div class="result-div"></div>
+    <div class="result-def" id="rDef"></div>
+    <div class="result-ex-label">// példa</div>
+    <div class="result-ex" id="rEx"></div>
+    <div class="result-actions">
+      <button class="action-btn" id="speakBtn" onclick="speakResult()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5h2l3-3v10l-3-3H2V5z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M10 4.5c1 .6 1.5 1.5 1.5 2.5S11 9.4 10 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Felolvas
+      </button>
+      <button class="action-btn" onclick="copyDef()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="4" width="8" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 9V2.5A.5.5 0 0 1 2.5 2H9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Másolás
+      </button>
+    </div>
+  </div>
+
+  <div class="panel" id="suggestionsPanel">
+    <div class="section-label">// próbáld ki</div>
+    <div class="chip-grid" id="chipGrid"></div>
+  </div>
+
+  <div class="panel panel-hidden" id="historyPanel">
+    <div class="section-label">// keresési előzmények</div>
+    <div id="historyList"></div>
+  </div>
+
+  <div class="panel panel-hidden" id="settingsPanel">
+    <div class="settings-block">
+      <div class="settings-label">// OpenAI API kulcs</div>
+      <p class="settings-desc">Az AI funkcióhoz szükséges az OpenAI kulcsod. Csak a telefonodra mentődik, sehova nem kerül fel.</p>
+      <input type="password" class="settings-input" id="apiKeyInput" placeholder="sk-..." autocomplete="off">
+      <button class="settings-save" onclick="saveApiKey()">Mentés</button>
+    </div>
+    <div style="margin-bottom:16px">
+      <div class="section-label">// névjegy</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.7;font-family:'DM Mono',monospace">IT DeKód v1.0<br>55+ kifejezés offline · AI fallback<br>Hang keresés · PWA</p>
+    </div>
+    <button class="clear-btn" onclick="clearCache()">Mentett AI válaszok törlése</button>
+  </div>
+
+  <div class="footer">
+    <span class="footer-text">// a kockanyelv értelmező</span>
+    <span class="footer-badge" id="footerBadge">offline</span>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DICT={
+  "api":{hu:"API",cat:"// programozás",def:"Application Programming Interface – szabályrendszer, amelyen keresztül különböző szoftverek kommunikálnak egymással.",ex:"A Google Maps API-t használom, hogy térképet mutassak az appomban."},
+  "loop":{hu:"loop (ciklus)",cat:"// programozás alapjai",def:"Kódblokk, amely addig ismétlődik, amíg egy feltétel teljesül. Ugyanazt a műveletet sokszor hajtja végre.",ex:"A for loop végigmegy egy listán és kiírja minden elemét."},
+  "variable":{hu:"variable (változó)",cat:"// programozás alapjai",def:"Megnevezett tároló, amelybe adatot menthetünk és visszahívhatunk. Olyan, mint egy doboz, amire nevet írunk.",ex:"A 'nev' változóba elmentettem a felhasználó nevét."},
+  "function":{hu:"function (függvény)",cat:"// programozás alapjai",def:"Újrafelhasználható kódblokk, amely egy konkrét feladatot hajt végre. Egyszer megírjuk, sokszor meghívjuk.",ex:"A szamol() függvény kiszámolja az összeget."},
+  "frontend":{hu:"frontend",cat:"// webfejlesztés",def:"Az alkalmazás azon része, amit a felhasználó lát és kezel: gombok, képek, szövegek – minden a képernyőn.",ex:"A gombok elrendezése és színe frontend munka."},
+  "backend":{hu:"backend",cat:"// webfejlesztés",def:"Az alkalmazás háttere – szerver, adatbázis és logika, amelyet a felhasználó nem lát, de nélkülözhetetlen.",ex:"A bejelentkezés ellenőrzése backend feladat."},
+  "database":{hu:"database (adatbázis)",cat:"// adattárolás",def:"Strukturált helyen tárolt adatok gyűjteménye. Az app ide menti a felhasználók adatait, üzeneteket, termékeket.",ex:"Az összes rendelést egy adatbázisban tároljuk."},
+  "framework":{hu:"framework (keretrendszer)",cat:"// fejlesztőeszköz",def:"Előre megírt kódok és szabályok gyűjteménye, amely meggyorsítja a fejlesztést. Nem kell mindent nulláról írni.",ex:"A React egy népszerű frontend framework."},
+  "debugging":{hu:"debugging (hibakeresés)",cat:"// fejlesztési folyamat",def:"A kódban lévő hibák megtalálásának és kijavításának folyamata. A 'bug' szó kódbeli hibát jelent.",ex:"Egy órát töltöttem debuggolással, mire megtaláltam a hibát."},
+  "deployment":{hu:"deployment (élesítés)",cat:"// fejlesztési folyamat",def:"Az elkészített alkalmazás feltöltése szerverre, hogy mások is elérjék az interneten.",ex:"Deployoltuk az appot, mostantól bárki elérheti."},
+  "git":{hu:"Git",cat:"// verziókezelés",def:"Verziókezelő rendszer, amely nyomon követi a kód változásait. Visszaállíthatunk korábbi állapotot, csapatban is dolgozhatsz.",ex:"git commit segítségével elmentettem a változtatásokat."},
+  "github":{hu:"GitHub",cat:"// verziókezelés",def:"Webes platform, ahol Git repository-kat tárolhatunk, megoszthatunk és csapatban fejleszthetünk.",ex:"A kódomat GitHubon tárolom, így bárhonnan elérem."},
+  "repository":{hu:"repository (tároló)",cat:"// verziókezelés",def:"Egy projekt összes fájlját és módosítási előzményeit tároló mappa, általában GitHubon.",ex:"A kódom egy nyilvános GitHub repository-ban van."},
+  "pwa":{hu:"PWA",cat:"// mobilfejlesztés",def:"Progresszív Web App – böngészőben futó alkalmazás, amely appként viselkedik: telepíthető, offline is működik.",ex:"Ez az app egy PWA, nem kell letölteni az áruházból."},
+  "responsive":{hu:"responsive (reszponzív)",cat:"// webdesign",def:"Az oldal automatikusan alkalmazkodik a képernyő méretéhez – mobilon és számítógépen egyaránt jól néz ki.",ex:"A reszponzív design miatt mobilon is kényelmesen olvasható."},
+  "json":{hu:"JSON",cat:"// adatformátum",def:"JavaScript Object Notation – ember által olvasható adatformátum, amelyet szoftverek közötti kommunikációban használnak.",ex:"Az API JSON formátumban küldi vissza az adatokat."},
+  "html":{hu:"HTML",cat:"// webfejlesztés",def:"HyperText Markup Language – a weboldalak alapszerkezetét leíró jelölőnyelv. Meghatározza, mi jelenjen meg az oldalon.",ex:"A cím és a gomb HTML elemek."},
+  "css":{hu:"CSS",cat:"// webdesign",def:"Cascading Style Sheets – a weboldal kinézetét határozza meg: színek, betűtípusok, elrendezés.",ex:"CSS segítségével tettem kéket a gomb hátterére."},
+  "javascript":{hu:"JavaScript",cat:"// programozás",def:"A web programozási nyelve, amellyel interaktivitást adhatunk az oldalakhoz: kattintások, animációk, adatok betöltése.",ex:"JavaScript-tel valósítottam meg a keresési funkciót."},
+  "component":{hu:"component (komponens)",cat:"// UI fejlesztés",def:"Önálló, újrafelhasználható UI elem – például egy gomb, kártya vagy fejléc, amelyet több helyen beilleszthetünk.",ex:"A keresőmező egy komponens, amelyet több oldalon is használok."},
+  "cache":{hu:"cache (gyorsítótár)",cat:"// teljesítmény",def:"Korábban letöltött adatok ideiglenes tárolása, hogy legközelebb gyorsabban legyen elérhető.",ex:"Az oldal a cache-ből tölt be, ezért gyors."},
+  "server":{hu:"server (szerver)",cat:"// infrastruktúra",def:"Számítógép vagy program, amely adatokat tárol és kérésekre válaszol. Az app ide fordul, ha adatot kér.",ex:"A szerver visszaküldi a felhasználó adatait bejelentkezés után."},
+  "token":{hu:"token",cat:"// hitelesítés / AI",def:"Hitelesítési tokennél: egyedi azonosítókulcs a belépéshez. AI-nál: szöveg egység, amit a modell feldolgoz.",ex:"A JWT token igazolja, hogy be vagy jelentkezve."},
+  "localhost":{hu:"localhost",cat:"// fejlesztési környezet",def:"Saját számítógéped, amelyen fejlesztés közben teszteled az appot. Csak te látod, senki más nem éri el.",ex:"Localhost:3000-en fut az app fejlesztés közben."},
+  "array":{hu:"array (tömb)",cat:"// programozás alapjai",def:"Adatok rendezett listája egyetlen változóban. Például számok, nevek vagy objektumok sorozata.",ex:"['alma','körte','szilva'] egy három elemű tömb."},
+  "object":{hu:"object (objektum)",cat:"// programozás alapjai",def:"Kulcs-érték párokat tartalmazó adatstruktúra. Egy dolog tulajdonságait írja le.",ex:"{nev:'Anna', kor:25} egy felhasználó objektum."},
+  "boolean":{hu:"boolean",cat:"// programozás alapjai",def:"Csak két értéket vehet fel: igaz (true) vagy hamis (false). Feltételek és döntések alapja.",ex:"A 'bejelentkezve' boolean értéke true, ha be vagy lépve."},
+  "string":{hu:"string (karakterlánc)",cat:"// programozás alapjai",def:"Szöveg típusú adat a programozásban. Mindig idézőjelek közé kerül.",ex:"'Szia, világ!' egy string érték."},
+  "integer":{hu:"integer (egész szám)",cat:"// programozás alapjai",def:"Tört rész nélküli szám a programozásban: pl. 1, 42, -7.",ex:"A felhasználók száma mindig integer."},
+  "class":{hu:"class (osztály)",cat:"// OOP",def:"Sablon, amelyből objektumokat hozhatunk létre. Meghatározza az objektumok tulajdonságait és viselkedését.",ex:"A 'Felhasználó' class alapján hozok létre új felhasználókat."},
+  "method":{hu:"method (metódus)",cat:"// OOP",def:"Osztályhoz tartozó függvény. Az objektumok cselekvéseit írja le.",ex:"A fizet() metódus elvégzi a fizetési folyamatot."},
+  "endpoint":{hu:"endpoint (végpont)",cat:"// API",def:"Egy API URL-je, amelyre kérést küldhetünk. Minden végpont egy konkrét feladatot végez el.",ex:"/api/felhasznalok endpoint visszaadja az összes felhasználót."},
+  "request":{hu:"request (kérés)",cat:"// API",def:"Az alkalmazás által a szervernek küldött üzenet, amelyben adatot vagy műveletet kér.",ex:"GET request segítségével lekérem a terméklistát."},
+  "response":{hu:"response (válasz)",cat:"// API",def:"A szerver által visszaküldött adat a kérésre. Általában JSON formátumban érkezik.",ex:"A szerver 200-as válaszkóddal jelzi, hogy sikeres volt."},
+  "async":{hu:"async (aszinkron)",cat:"// programozás",def:"Olyan folyamat, amely a háttérben fut és nem blokkolja a program többi részét. Várakozás közben más is futhat.",ex:"Az API hívás async, ezért az app nem fagy be."},
+  "callback":{hu:"callback (visszahívás)",cat:"// programozás",def:"Függvény, amelyet egy másik függvény hív meg, miután elvégezte a feladatát.",ex:"A letöltés befejezése után hívódik meg a callback függvény."},
+  "promise":{hu:"promise (ígéret)",cat:"// programozás",def:"Egy jövőbeli eredményt képviselő objektum. Jelzi, hogy valami majd teljesül – vagy meghiúsul.",ex:"Az API hívás egy promise-t ad vissza."},
+  "react":{hu:"React",cat:"// framework",def:"A Meta által készített JavaScript könyvtár felhasználói felületek építéséhez. Komponens alapú.",ex:"React-ban minden UI elem egy különálló komponens."},
+  "npm":{hu:"npm",cat:"// fejlesztőeszköz",def:"Node Package Manager – Node.js csomagkezelője. Külső könyvtárakat telepíthetünk a projektünkbe.",ex:"npm install paranccsal telepítettem a könyvtárat."},
+  "console":{hu:"console (konzol)",cat:"// fejlesztői eszköz",def:"Fejlesztői eszköz, ahol a program üzeneteket írhat ki. Hibakereséshez használjuk.",ex:"console.log() segítségével kiírom a változó értékét."},
+  "syntax":{hu:"syntax (szintaxis)",cat:"// programozás alapjai",def:"A programozási nyelv szabályrendszere: hogyan kell helyesen írni a kódot. Ha hibás, a program nem fut le.",ex:"Szintaxis hiba volt a kódban, hiányzott egy zárójel."},
+  "bug":{hu:"bug (hiba)",cat:"// fejlesztési folyamat",def:"Kódbeli hiba, amely miatt a program nem úgy viselkedik, ahogy kellene.",ex:"Találtam egy bugot: a gomb nem működött kattintásra."},
+  "merge":{hu:"merge (összefésülés)",cat:"// verziókezelés",def:"Két kódág egyesítése egybe a Git verziókezelőben.",ex:"Merge után a csapattársam változtatásai is benne vannak."},
+  "branch":{hu:"branch (ág)",cat:"// verziókezelés",def:"A fő kódtól elkülönített másolat, amelyen kísérletezhetünk anélkül, hogy az eredetit módosítanánk.",ex:"Új feature-t egy külön branchen fejlesztek."},
+  "commit":{hu:"commit",cat:"// verziókezelés",def:"A változtatások elmentése a Git verziókezelőbe, üzenettel ellátva.",ex:"git commit -m 'Keresőmező hozzáadva' – ez az üzenet."},
+  "ui":{hu:"UI",cat:"// design",def:"User Interface – minden vizuális elem, amellyel a felhasználó közvetlenül érintkezik: gombok, mezők, menük.",ex:"Az új UI sokkal egyszerűbb és átláthatóbb lett."},
+  "ux":{hu:"UX",cat:"// design",def:"User Experience – az a folyamat és érzés, amelyen a felhasználó átmegy az app használata közben.",ex:"Jó UX esetén a felhasználó könnyen megtalálja, amit keres."},
+  "sdk":{hu:"SDK",cat:"// fejlesztőeszköz",def:"Software Development Kit – fejlesztőkészlet egy platformhoz, amely megkönnyíti az integrációt.",ex:"Az OpenAI SDK segítségével egyszerűen hívom az AI-t."},
+  "markdown":{hu:"Markdown",cat:"// dokumentáció",def:"Egyszerű szövegformázási nyelv fejlécek, félkövér szöveg és listák létrehozásához.",ex:"A README.md fájl Markdown formátumban van írva."},
+  "openai":{hu:"OpenAI",cat:"// mesterséges intelligencia",def:"AI kutatólaboratórium, amely a ChatGPT-t és a GPT modelleket fejlesztette. API-n keresztül elérhető.",ex:"Az OpenAI API segítségével AI választ generálok."},
+  "chatgpt":{hu:"ChatGPT",cat:"// mesterséges intelligencia",def:"Az OpenAI által készített AI csevegőbot, amely természetes nyelven válaszol kérdésekre.",ex:"ChatGPT segített megérteni, mit jelent az async."},
+  "prompt":{hu:"prompt",cat:"// mesterséges intelligencia",def:"Az AI-nak küldött utasítás vagy kérdés. Minél pontosabb a prompt, annál jobb a válasz.",ex:"Jó promptot írni maga is egy készség."},
+  "parameter":{hu:"parameter (paraméter)",cat:"// programozás alapjai",def:"Egy függvénynek átadott érték, amellyel a függvény dolgozni fog.",ex:"A szamol(a, b) függvény két paramétert vár."},
+  "return":{hu:"return",cat:"// programozás alapjai",def:"A függvény által visszaadott eredmény, amellyel a hívó kód tovább tud dolgozni.",ex:"A függvény visszaadja az összeget a return kulcsszóval."},
+  "refactor":{hu:"refactor (refaktorálás)",cat:"// fejlesztési folyamat",def:"Meglévő kód átírása tisztábbá és hatékonyabbá, anélkül hogy a működése megváltozna.",ex:"Refaktoráltam a kódot, most sokkal olvashatóbb."},
+  "github pages":{hu:"GitHub Pages",cat:"// hosting",def:"Ingyenes webtárhely-szolgáltatás, amellyel GitHub repository-ból közvetlenül tehetünk közzé weboldalakat.",ex:"GitHub Pages-en keresztül érhető el élőben az IT DeKód app."},
+};
+
+const SUGGESTIONS=["API","loop","variable","frontend","backend","async","JSON","bug","commit","branch","UI","UX","boolean","cache","prompt","GitHub"];
+let hist=[],curRes=null,recog=null;
+try{hist=JSON.parse(localStorage.getItem('itdk_hist')||'[]')}catch(e){}
+
+function init(){
+  renderChips();updateFooterBadge();
+  const k=localStorage.getItem('itdk_key')||'';
+  if(k)document.getElementById('apiKeyInput').value=k;
+  setStatus('szótár betöltve – offline elérhető','green');
+  startTagAnim();
+}
+
+function startTagAnim(){
+  const el=document.getElementById('tagline'),cur=document.getElementById('cur');
+  const HU='a kockanyelv értelmező',BIN='01101011 01101111 01100011';
+  let phase='wait',current=HU,target=BIN,pos=HU.length,cycles=0;
+  function tick(){
+    if(cycles>=2){el.textContent=HU;cur.style.display='none';return;}
+    if(phase==='wait'){phase='erase';cur.style.display='inline-block';setTimeout(tick,80);}
+    else if(phase==='erase'){if(pos>0){pos--;el.textContent=current.slice(0,pos);setTimeout(tick,36);}else{phase='type';const p=current;current=target;target=p;pos=0;setTimeout(tick,140);}}
+    else if(phase==='type'){if(pos<current.length){pos++;el.textContent=current.slice(0,pos);setTimeout(tick,current===BIN?60:44);}else{if(current===HU)cycles++;phase='wait';cur.style.display='none';setTimeout(tick,cycles<2?2500:0);}}
+  }
+  setTimeout(tick,2000);
+}
+
+function showPanel(n){
+  ['suggestions','history','settings'].forEach(p=>{
+    document.getElementById(p+'Panel').classList.toggle('panel-hidden',p!==n);
+  });
+  if(n==='history')renderHistory();
+}
+
+function renderChips(){
+  document.getElementById('chipGrid').innerHTML=SUGGESTIONS.map(s=>`<div class="chip" onclick="searchWord('${s.toLowerCase()}')">${s}</div>`).join('');
+}
+
+function renderHistory(){
+  const list=document.getElementById('historyList');
+  if(!hist.length){list.innerHTML='<p style="font-size:13px;color:var(--muted2);padding:16px 0;font-family:\'DM Mono\',monospace">// még nincs keresési előzmény</p>';return;}
+  list.innerHTML=hist.slice().reverse().slice(0,25).map(h=>`<div class="history-item" onclick="searchWord('${h.word}');showPanel('suggestions')"><span class="history-word">${h.display||h.word}</span><span class="badge badge-${h.source}">${h.source==='offline'?'● szótár':h.source==='cached'?'● mentett':'● AI'}</span></div>`).join('');
+}
+
+function saveHist(word,display,source){
+  hist=hist.filter(h=>h.word!==word);
+  hist.push({word,display,source,ts:Date.now()});
+  if(hist.length>60)hist.shift();
+  try{localStorage.setItem('itdk_hist',JSON.stringify(hist))}catch(e){}
+}
+
+function setStatus(txt,type){
+  const d=document.getElementById('sDot');
+  d.className='dot'+(type==='orange'?' orange':type==='gray'?' gray':type==='red'?' red':'');
+  document.getElementById('sTxt').textContent=txt;
+}
+
+function showResult(word,def,ex,cat,source,displayWord){
+  curRes={word,def,ex};
+  document.getElementById('rWord').textContent=displayWord||word;
+  document.getElementById('rCat').textContent=cat;
+  document.getElementById('rDef').textContent=def;
+  document.getElementById('rEx').textContent=ex;
+  const s=document.getElementById('rSrc');
+  if(source==='offline'){s.innerHTML='<span class="src-offline">● szótár</span>';setStatus('szótárból töltve – offline elérhető','green');}
+  else if(source==='cached'){s.innerHTML='<span class="src-cached">● mentett AI válasz</span>';setStatus('korábban elmentett AI válasz','orange');}
+  else{s.innerHTML='<span class="src-ai">● AI válasz – elmentve</span>';setStatus('AI által generált és elmentve offline-ra','orange');}
+  document.getElementById('resultCard').classList.add('visible');
+}
+
+function hideResult(){document.getElementById('resultCard').classList.remove('visible');curRes=null;}
+function doSearch(){const r=document.getElementById('searchInput').value.trim();if(r)searchWord(r.toLowerCase());}
+function onInput(v){if(!v)hideResult();}
+
+async function searchWord(k){
+  k=k.trim().toLowerCase();if(!k)return;
+  document.getElementById('searchInput').value=k;
+  hideResult();showPanel('suggestions');
+  if(DICT[k]){const e=DICT[k];showResult(k,e.def,e.ex,e.cat,'offline',e.hu);saveHist(k,e.hu,'offline');return;}
+  let cached={};
+  try{cached=JSON.parse(localStorage.getItem('itdk_cache')||'{}')}catch(e){}
+  if(cached[k]){const c=cached[k];showResult(k,c.def,c.ex,c.cat,'cached',c.hu);saveHist(k,c.hu||k,'cached');return;}
+  const key=localStorage.getItem('itdk_key')||'';
+  if(!key){setStatus('AI kulcs nincs megadva – nyisd meg a beállításokat','gray');showPanel('settings');return;}
+  document.getElementById('loading').classList.add('visible');
+  setStatus('// AI keresi a választ...','orange');
+  try{
+    const resp=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},body:JSON.stringify({model:"gpt-4o-mini",max_tokens:150,messages:[{role:"system",content:"Magyar IT szótár vagy. Válaszolj CSAK JSON-ban: {\"hu\":\"magyar neve\",\"cat\":\"// kategória\",\"def\":\"max 80 szavas egyszerű magyarázat kezdőknek\",\"ex\":\"egy rövid példa\"}."},{"role":"user","content":"Mi az a: "+k}]})});
+    const data=await resp.json();
+    const parsed=JSON.parse((data.choices?.[0]?.message?.content||'').replace(/```json|```/g,'').trim());
+    const nc=JSON.parse(localStorage.getItem('itdk_cache')||'{}');nc[k]=parsed;localStorage.setItem('itdk_cache',JSON.stringify(nc));
+    showResult(k,parsed.def,parsed.ex,parsed.cat,'ai',parsed.hu);saveHist(k,parsed.hu||k,'ai');
+  }catch(e){setStatus('hiba – ellenőrizd az API kulcsot vagy az internetet','red');}
+  finally{document.getElementById('loading').classList.remove('visible');}
+}
+
+function startVoice(){
+  const btn=document.getElementById('micBtn');
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){setStatus('böngésződ nem támogatja a hangfelismerést','gray');return;}
+  if(recog){recog.stop();recog=null;btn.classList.remove('listening');return;}
+  recog=new SR();recog.lang='hu-HU';recog.interimResults=false;
+  btn.classList.add('listening');setStatus('// figyelek... mondd ki a kifejezést!','orange');
+  recog.onresult=e=>{const t=e.results[0][0].transcript.trim().toLowerCase();document.getElementById('searchInput').value=t;searchWord(t);};
+  recog.onerror=()=>{setStatus('hangfelismerési hiba – próbáld újra','red');btn.classList.remove('listening');recog=null;};
+  recog.onend=()=>{btn.classList.remove('listening');recog=null;};
+  recog.start();
+}
+
+function speakResult(){
+  if(!curRes||!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(curRes.def);u.lang='hu-HU';u.rate=0.88;
+  const btn=document.getElementById('speakBtn');btn.classList.add('speaking');
+  u.onend=u.onerror=()=>btn.classList.remove('speaking');
+  speechSynthesis.speak(u);
+}
+
+function copyDef(){
+  if(!curRes)return;
+  const t=document.getElementById('rWord').textContent+': '+curRes.def;
+  navigator.clipboard?.writeText(t).then(()=>toast('Másolva!')).catch(()=>toast('Másolás sikertelen'));
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function saveApiKey(){
+  const v=document.getElementById('apiKeyInput').value.trim();
+  if(v){localStorage.setItem('itdk_key',v);updateFooterBadge();toast('API kulcs elmentve!');showPanel('suggestions');}
+  else{localStorage.removeItem('itdk_key');updateFooterBadge();toast('API kulcs törölve');}
+}
+
+function clearCache(){localStorage.removeItem('itdk_cache');toast('Mentett AI válaszok törölve');}
+
+function updateFooterBadge(){
+  const el=document.getElementById('footerBadge'),k=localStorage.getItem('itdk_key')||'';
+  if(k){el.textContent='offline + AI';el.className='footer-badge ai';}
+  else{el.textContent='offline';el.className='footer-badge';}
+}
+
+init();
+</script>
+</body>
+</html>
