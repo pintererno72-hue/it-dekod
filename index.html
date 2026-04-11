@@ -359,7 +359,7 @@ async function searchWord(k){
     const data=await resp.json();
     const parsed=JSON.parse((data.choices?.[0]?.message?.content||'').replace(/```json|```/g,'').trim());
     const nc=JSON.parse(localStorage.getItem('itdk_cache')||'{}');nc[k]=parsed;localStorage.setItem('itdk_cache',JSON.stringify(nc));
-    showResult(k,parsed.def,parsed.ex,parsed.cat,'ai',parsed.hu);saveHist(k,parsed.hu||k,'ai');
+    showResult(k,parsed.def,parsed.ex,parsed.cat,'ai',parsed.hu);saveHist(k,k,'ai');
   }catch(e){setStatus('hiba – ellenőrizd az API kulcsot vagy az internetet','red');}
   finally{document.getElementById('loading').classList.remove('visible');}
 }
