@@ -114,6 +114,89 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 /* TOAST */
 .toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border2);border-radius:100px;padding:10px 20px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;z-index:999}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── RESZPONZÍV – Tablet (600px+) ── */
+@media(min-width:600px){
+  .app{max-width:600px}
+  .header{padding:32px 36px 20px}
+  .logo-name{font-size:24px}
+  .logo-tag{font-size:12px}
+  .icon-btn{width:44px;height:44px}
+  .search-area{padding:10px 36px 24px}
+  .search-box{padding:14px 18px;gap:12px}
+  .search-box input{font-size:17px}
+  .search-btn{height:42px;padding:0 20px;font-size:15px}
+  .mic-btn{width:42px;height:42px}
+  .status-bar{margin:0 36px 18px;font-size:13px}
+  .loading{margin:0 36px 20px}
+  .result-card{margin:0 36px 24px;padding:24px}
+  .result-word{font-size:28px}
+  .result-cat{font-size:13px}
+  .result-def{font-size:17px}
+  .result-ex{font-size:16px}
+  .result-source{font-size:12px}
+  .result-ex-label{font-size:12px}
+  .action-btn{height:44px;font-size:14px}
+  .panel{padding:0 36px}
+  .section-label{font-size:12px}
+  .chip{font-size:14px;padding:8px 16px}
+  .history-word{font-size:17px}
+  .badge{font-size:11px;padding:4px 10px}
+  .settings-desc{font-size:14px}
+  .settings-input{font-size:14px;padding:12px 14px}
+  .settings-save{font-size:14px;height:42px}
+  .footer-text{font-size:12px}
+}
+
+/* ── RESZPONZÍV – Laptop (900px+) ── */
+@media(min-width:900px){
+  body{align-items:flex-start;padding:40px 0}
+  .app{max-width:720px;min-height:auto;border-radius:24px;border:1px solid var(--border2);overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.5)}
+  .header{padding:36px 48px 24px}
+  .logo-name{font-size:26px}
+  .logo-tag{font-size:13px}
+  .icon-btn{width:46px;height:46px;border-radius:13px}
+  .search-area{padding:8px 48px 28px}
+  .search-box{padding:16px 20px;border-radius:18px}
+  .search-box input{font-size:18px}
+  .search-btn{height:46px;padding:0 24px;font-size:15px;border-radius:11px}
+  .mic-btn{width:46px;height:46px;border-radius:11px}
+  .status-bar{margin:0 48px 20px;font-size:13px}
+  .loading{margin:0 48px 22px;border-radius:18px}
+  .result-card{margin:0 48px 28px;padding:28px;border-radius:18px}
+  .result-word{font-size:30px}
+  .result-def{font-size:17px;line-height:1.75}
+  .result-ex{font-size:16px}
+  .action-btn{height:46px;font-size:14px;border-radius:11px}
+  .panel{padding:0 48px}
+  .chip{font-size:14px;padding:9px 18px}
+  .chip-grid{gap:10px}
+  .settings-block{padding:20px}
+  .footer{padding:20px 48px 32px}
+}
+
+/* ── RESZPONZÍV – Asztali (1200px+) ── */
+@media(min-width:1200px){
+  body{padding:60px 0;justify-content:center;align-items:flex-start}
+  .app{max-width:800px}
+  .header{padding:40px 56px 28px}
+  .logo-name{font-size:28px}
+  .search-area{padding:8px 56px 32px}
+  .search-box{padding:18px 22px}
+  .search-box input{font-size:19px}
+  .search-btn{height:50px;padding:0 28px;font-size:16px}
+  .mic-btn{width:50px;height:50px}
+  .status-bar{margin:0 56px 22px}
+  .loading{margin:0 56px 24px}
+  .result-card{margin:0 56px 32px;padding:32px}
+  .result-word{font-size:32px}
+  .result-def{font-size:18px}
+  .result-ex{font-size:17px}
+  .action-btn{height:50px;font-size:15px}
+  .panel{padding:0 56px}
+  .chip{font-size:15px;padding:10px 20px}
+  .footer{padding:24px 56px 40px}
+}
 </style>
 </head>
 <body>
