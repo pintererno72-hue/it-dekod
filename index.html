@@ -111,6 +111,18 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .footer-badge{font-size:10px;padding:3px 9px;border-radius:100px;background:rgba(0,184,148,.1);color:var(--green);font-weight:600;font-family:'DM Mono',monospace}
 .footer-badge.ai{background:rgba(108,92,231,.12);color:var(--accent2)}
 
+/* AUTO-SUGGEST */
+.suggest-list{margin:0 24px 16px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;display:none;animation:fadeUp .15s ease}
+.suggest-list.visible{display:block}
+.suggest-item{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s}
+.suggest-item:last-child{border-bottom:none}
+.suggest-item:hover,.suggest-item:active{background:var(--surface2)}
+.suggest-word{font-family:"DM Mono",monospace;font-size:14px;color:var(--accent2);font-weight:600;flex-shrink:0}
+.suggest-hu{font-size:13px;color:var(--muted);flex:1}
+@media(min-width:600px){.suggest-list{margin:0 36px 16px}.suggest-word{font-size:15px}.suggest-hu{font-size:14px}}
+@media(min-width:900px){.suggest-list{margin:0 48px 16px}}
+@media(min-width:1200px){.suggest-list{margin:0 56px 16px}}
+
 /* TOAST */
 .toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border2);border-radius:100px;padding:10px 20px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;z-index:999}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -238,6 +250,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </div>
   </div>
 
+  <div class="suggest-list" id="suggestList"></div>
   <div class="status-bar"><div class="dot" id="sDot"></div><span id="sTxt">szótár betöltve – offline elérhető</span></div>
 
   <div class="loading" id="loading"><div class="da"></div><div class="da"></div><div class="da"></div><span class="loading-text">// AI keresi a választ...</span></div>
@@ -423,12 +436,23 @@ function showResult(word,def,ex,cat,source,displayWord){
 
 function hideResult(){document.getElementById('resultCard').classList.remove('visible');curRes=null;}
 function doSearch(){const r=document.getElementById('searchInput').value.trim();if(r)searchWord(r.toLowerCase());}
-function onInput(v){if(!v)hideResult();}
+function onInput(v){
+  if(!v){hideResult();hideSuggest();return;}
+  const k=v.trim().toLowerCase();
+  if(k.length<1){hideSuggest();return;}
+  const matches=Object.keys(DICT).filter(w=>w.startsWith(k)&&w!==k).slice(0,6);
+  if(matches.length>0){
+    const list=document.getElementById('suggestList');
+    list.innerHTML=matches.map(w=>`<div class="suggest-item" onclick="searchWord('${w}');hideSuggest()"><span class="suggest-word">${w}</span><span class="suggest-hu">${DICT[w].hu}</span></div>`).join('');
+    list.classList.add('visible');
+  } else {hideSuggest();}
+}
+function hideSuggest(){document.getElementById('suggestList').classList.remove('visible');}
 
 async function searchWord(k){
   k=k.trim().toLowerCase();if(!k)return;
   document.getElementById('searchInput').value=k;
-  hideResult();showPanel('suggestions');
+  hideResult();hideSuggest();showPanel('suggestions');
   if(DICT[k]){const e=DICT[k];showResult(k,e.def,e.ex,e.cat,'offline',e.hu);saveHist(k,e.hu,'offline');return;}
   let cached={};
   try{cached=JSON.parse(localStorage.getItem('itdk_cache')||'{}')}catch(e){}
