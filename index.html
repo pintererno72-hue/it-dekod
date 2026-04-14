@@ -30,7 +30,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .logo-wrap{display:flex;align-items:center;gap:12px}
 .logo-name{font-family:'DM Mono',monospace;font-size:20px;font-weight:600;color:var(--text);letter-spacing:-0.5px;line-height:1}
 .logo-name .kod{color:var(--accent2)}
-.logo-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);margin-top:2px}
+.logo-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px}
 .cur{display:none;width:6px;height:11px;background:var(--accent2);vertical-align:middle;margin-left:1px;animation:blink .55s steps(1) infinite}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
 .header-btns{display:flex;gap:8px}
@@ -110,6 +110,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .footer-text{font-size:11px;color:var(--muted2);font-family:'DM Mono',monospace}
 .footer-badge{font-size:10px;padding:3px 9px;border-radius:100px;background:rgba(0,184,148,.1);color:var(--green);font-weight:600;font-family:'DM Mono',monospace}
 .footer-badge.ai{background:rgba(108,92,231,.12);color:var(--accent2)}
+
+/* KATEGÓRIA SÁV */
+.cat-scroll{display:flex;gap:8px;padding:0 24px 14px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.cat-scroll::-webkit-scrollbar{display:none}
+.cat-btn{padding:6px 14px;border-radius:100px;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;flex-shrink:0;font-family:"DM Mono",monospace;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s}
+.cat-btn.active{background:var(--accent);border-color:var(--accent);color:white}
+.cat-btn:active{transform:scale(.96)}
+@media(min-width:600px){.cat-scroll{padding:0 36px 16px}.cat-btn{font-size:13px;padding:7px 16px}}
+@media(min-width:900px){.cat-scroll{padding:0 48px 16px}}
+@media(min-width:1200px){.cat-scroll{padding:0 56px 16px}}
 
 /* AUTO-SUGGEST */
 .suggest-list{margin:0 24px 16px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;display:none;animation:fadeUp .15s ease}
@@ -275,6 +285,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </div>
   </div>
 
+  <div class="cat-scroll" id="catScroll"></div>
+
   <div class="panel" id="suggestionsPanel">
     <div class="section-label">// próbáld ki</div>
     <div class="chip-grid" id="chipGrid"></div>
@@ -371,7 +383,7 @@ let hist=[],curRes=null,recog=null;
 try{hist=JSON.parse(localStorage.getItem('itdk_hist')||'[]')}catch(e){}
 
 function init(){
-  renderChips();updateFooterBadge();
+  renderCats();renderChips();updateFooterBadge();
   const k=localStorage.getItem('itdk_key')||'';
   if(k)document.getElementById('apiKeyInput').value=k;
   setStatus('szótár betöltve – offline elérhető','green');
@@ -398,8 +410,38 @@ function showPanel(n){
   if(n==='history')renderHistory();
 }
 
+const CATEGORIES={
+  'mind': null,
+  'UI / design': ['ui','ux','component','responsive','css','html','wireframe','prototype','animation','icon','button','modal','navbar','layout','font','color'],
+  'backend': ['backend','server','database','api','endpoint','request','response','authentication','cache','rest','middleware','cloud','docker','json'],
+  'programozás': ['variable','function','loop','array','object','boolean','string','integer','class','method','parameter','return','callback','promise','async','syntax','bug','refactor','iterator','console','npm'],
+  'verziókezelés': ['git','github','commit','branch','merge','repository','deployment','github pages'],
+  'AI / ML': ['openai','chatgpt','prompt','token','ai','sdk'],
+  'mobilfejlesztés': ['pwa','responsive','localhost','javascript','react','framework'],
+};
+
+let activeCategory='mind';
+
+function renderCats(){
+  const scroll=document.getElementById('catScroll');
+  scroll.innerHTML=Object.keys(CATEGORIES).map(c=>`<button class="cat-btn${c===activeCategory?' active':''}" onclick="setCategory('${c}')">${c}</button>`).join('');
+}
+
+function setCategory(cat){
+  activeCategory=cat;
+  renderCats();
+  renderChips();
+}
+
 function renderChips(){
-  document.getElementById('chipGrid').innerHTML=SUGGESTIONS.map(s=>`<div class="chip" onclick="searchWord('${s.toLowerCase()}')">${s}</div>`).join('');
+  const filter=CATEGORIES[activeCategory];
+  const words=filter
+    ? Object.keys(DICT).filter(w=>filter.includes(w))
+    : SUGGESTIONS.map(s=>s.toLowerCase());
+  document.getElementById('chipGrid').innerHTML=words.map(w=>{
+    const label=DICT[w]?DICT[w].hu:w;
+    return `<div class="chip" onclick="searchWord('${w}')">${w}</div>`;
+  }).join('');
 }
 
 function renderHistory(){
